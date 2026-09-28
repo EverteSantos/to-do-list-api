@@ -17,7 +17,7 @@ public class TaskService {
         this.taskRepository = taskRepository;
     }
 
-    public Task creatTask(String title, String description){
+    public Task createTask(String title, String description){
         Task task = new Task(title, description);
 
         return taskRepository.save(task);
@@ -25,6 +25,10 @@ public class TaskService {
 
     public List<Task> listTasks(){
         return taskRepository.findAll();
+    }
+
+    public Task searchTaskById(Long id){
+        return taskRepository.findById(id).orElseThrow(() -> new TaskNotFoundException(id));
     }
 
     public Task updateStatus(Long id, TaskStatus status){
