@@ -1,5 +1,6 @@
 package br.com.everte.todolistapi.entity;
 
+import br.com.everte.todolistapi.enums.TaskPriority;
 import br.com.everte.todolistapi.enums.TaskStatus;
 import jakarta.persistence.*;
 import jakarta.persistence.Id;
@@ -27,6 +28,10 @@ public class Task {
     @Column(nullable = false)
     private TaskStatus status;
 
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private TaskPriority priority;
+
     protected Task(){
     }
 
@@ -34,6 +39,7 @@ public class Task {
         this.title = title;
         this.description = description;
         this.status = TaskStatus.PENDING;
+        this.priority = TaskPriority.MEDIUM;
     }
 
     public long getId() {
@@ -52,8 +58,12 @@ public class Task {
         return status;
     }
 
+    public TaskPriority getPriority(){ return priority; }
+
     public void updateStatus(TaskStatus status){
         this.status = status;
     }
+
+    public void updatePriority(TaskPriority priority){ this.priority = priority; }
 }
 

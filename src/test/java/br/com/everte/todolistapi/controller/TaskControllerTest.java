@@ -1,6 +1,7 @@
 package br.com.everte.todolistapi.controller;
 
 import br.com.everte.todolistapi.entity.Task;
+import br.com.everte.todolistapi.enums.TaskPriority;
 import br.com.everte.todolistapi.enums.TaskStatus;
 import br.com.everte.todolistapi.exception.TaskNotFoundException;
 import br.com.everte.todolistapi.service.TaskService;
@@ -60,7 +61,9 @@ class TaskControllerTest {
                 .andExpect(jsonPath("$.description")
                         .value("Revisar POO"))
                 .andExpect(jsonPath("$.status")
-                        .value("PENDING"));
+                        .value("PENDING"))
+                .andExpect(jsonPath("$.priority")
+                        .value("MEDIUM"));
     }
 
     @Test
@@ -167,6 +170,44 @@ class TaskControllerTest {
     }
 
     @Test
+    void shouldUpdatePriority() throws Exception {
+        Task task = new Task(
+                "Estudar Java",
+                "Revisar POO"
+        );
+
+        task.updatePriority(TaskPriority.HIGH);
+
+        when(taskService.updatePriority(eq(1L),
+                eq(TaskPriority.HIGH)))
+                .thenReturn(task);
+
+        mockMvc.perform(
+                        patch("/api/tasks/1/priority")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content("""
+                                {
+                                    "priority": "HIGH"
+                                }
+                                """)
+                )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.title")
+                        .value("Estudar Java"))
+                .andExpect(jsonPath("$.description")
+                        .value("Revisar POO"))
+                .andExpect(jsonPath("$.priority")
+                        .value("HIGH"));
+
+        verify(taskService).updatePriority(
+                1L,
+                TaskPriority.HIGH
+        );
+
+
+    }
+
+    @Test
     void shouldDeleteTask() throws Exception {
 
         mockMvc.perform(
@@ -214,6 +255,23 @@ class TaskControllerTest {
     }
 
     @Test
+    void shouldReturn400WhenPriorityIsInvalid() throws Exception {
+
+        mockMvc.perform(
+                        patch("/api/tasks/1/priority")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content("""
+                            {
+                                "priority": null
+                            }
+                            """)
+                )
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.priority")
+                        .value("A prioridade é obrigatória."));
+    }
+
+    @Test
     void shouldReturn404WhenUpdatingTaskDoesNotExist() throws Exception {
 
         when(taskService.updateStatus(
@@ -236,14 +294,21 @@ class TaskControllerTest {
     }
 
     @Test
-    void shouldReturn404WhenDeletingTaskDoesNotExist() throws Exception {
+    void shouldReturn404WhenUpdatingPriorityTaskDoesNotExist() throws Exception {
 
-        doThrow(new TaskNotFoundException(999L))
-                .when(taskService)
-                .deleteTask(999L);
+        when(taskService.updatePriority(
+                eq(999L),
+                eq(TaskPriority.HIGH)
+        )).thenThrow(new TaskNotFoundException(999L));
 
         mockMvc.perform(
-                        delete("/api/tasks/999")
+                        patch("/api/tasks/999/priority")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content("""
+                        {
+                            "priority": "HIGH"
+                        }
+                        """)
                 )
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.error")

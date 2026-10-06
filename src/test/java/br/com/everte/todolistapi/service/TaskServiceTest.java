@@ -1,6 +1,7 @@
 package br.com.everte.todolistapi.service;
 
 import br.com.everte.todolistapi.entity.Task;
+import br.com.everte.todolistapi.enums.TaskPriority;
 import br.com.everte.todolistapi.enums.TaskStatus;
 import br.com.everte.todolistapi.exception.TaskNotFoundException;
 import br.com.everte.todolistapi.repository.TaskRepository;
@@ -45,6 +46,7 @@ class TaskServiceTest {
         assertEquals("Estudar Java", result.getTitle());
         assertEquals("Revisar POO", result.getDescription());
         assertEquals(TaskStatus.PENDING, result.getStatus());
+        assertEquals(TaskPriority.MEDIUM, result.getPriority());
     }
 
     @Test
@@ -113,6 +115,27 @@ class TaskServiceTest {
     }
 
     @Test
+    void shouldUpdateTaskPriority(){
+        Task task = new Task(
+                "Estudar Java",
+                "Revisar POO"
+        );
+
+        Mockito.when(taskRepository.findById(1L))
+                .thenReturn(Optional.of(task));
+        Mockito.when(taskRepository.save(Mockito.any(Task.class)))
+                .thenReturn(task);
+
+        Task result = taskService.updatePriority(
+                1L,
+                TaskPriority.HIGH
+        );
+
+        assertEquals(TaskPriority.HIGH, result.getPriority());
+
+    }
+
+    @Test
     void shouldDeletTask(){
         Mockito.when(taskRepository.existsById(1L))
                 .thenReturn(true);
@@ -123,7 +146,7 @@ class TaskServiceTest {
     }
 
     @Test
-    void shouldThrowExceptionWhenDeletingNonE$xistingTask(){
+    void shouldThrowExceptionWhenDeletingNonExistingTask(){
         Mockito.when(taskRepository.existsById(999L))
                 .thenReturn(false);
 
@@ -144,6 +167,21 @@ class TaskServiceTest {
                 () -> taskService.updateStatus(
                         999L,
                         TaskStatus.COMPLETED
+                )
+        );
+    }
+
+    @Test
+    void shouldThrowExceptionWhenUpdatingPriorityNonExistingTask() {
+
+        Mockito.when(taskRepository.findById(999L))
+                .thenReturn(Optional.empty());
+
+        assertThrows(
+                TaskNotFoundException.class,
+                () -> taskService.updatePriority(
+                        999L,
+                        TaskPriority.HIGH
                 )
         );
     }

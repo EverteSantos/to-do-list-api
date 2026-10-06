@@ -1,6 +1,7 @@
 package br.com.everte.todolistapi.controller;
 
 import br.com.everte.todolistapi.dto.CreateTaskRequest;
+import br.com.everte.todolistapi.dto.UpdatePriorityRequest;
 import br.com.everte.todolistapi.dto.UpdateStatusRequest;
 import br.com.everte.todolistapi.entity.Task;
 import br.com.everte.todolistapi.service.TaskService;
@@ -128,6 +129,25 @@ public class TaskController {
 
             return ResponseEntity.ok(task);
         }
+
+        @Operation(summary = "Atualizar prioridade da tarefa.")
+        @PatchMapping("/{id}/priority")
+        public ResponseEntity<Task> updatePriority(
+                @Parameter(
+                        description = "ID da tarefa",
+                        example = "1"
+                )
+                @PathVariable long id,
+                @Valid @RequestBody UpdatePriorityRequest request) {
+
+                Task task = taskService.updatePriority(
+                        id,
+                        request.getPriority()
+                );
+
+                return ResponseEntity.ok(task);
+        }
+
 
         @Operation(
                 summary = "Excluir tarefa",

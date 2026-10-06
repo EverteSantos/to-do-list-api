@@ -1,6 +1,7 @@
 package br.com.everte.todolistapi.service;
 
 import br.com.everte.todolistapi.entity.Task;
+import br.com.everte.todolistapi.enums.TaskPriority;
 import br.com.everte.todolistapi.enums.TaskStatus;
 import br.com.everte.todolistapi.repository.TaskRepository;
 import br.com.everte.todolistapi.exception.TaskNotFoundException;
@@ -32,9 +33,18 @@ public class TaskService {
     }
 
     public Task updateStatus(Long id, TaskStatus status){
-        Task task = taskRepository.findById(id).orElseThrow(() -> new TaskNotFoundException(id));
+        Task task = searchTaskById(id);
 
         task.updateStatus(status);
+
+        return taskRepository.save(task);
+    }
+
+
+    public Task updatePriority(Long id, TaskPriority priority){
+        Task task = searchTaskById(id);
+
+        task.updatePriority(priority);
 
         return taskRepository.save(task);
     }
