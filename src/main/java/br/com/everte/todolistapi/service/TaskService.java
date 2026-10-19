@@ -7,6 +7,7 @@ import br.com.everte.todolistapi.repository.TaskRepository;
 import br.com.everte.todolistapi.exception.TaskNotFoundException;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @Service
@@ -18,8 +19,8 @@ public class TaskService {
         this.taskRepository = taskRepository;
     }
 
-    public Task createTask(String title, String description){
-        Task task = new Task(title, description);
+    public Task createTask(String title, String description, LocalDate dueDate){
+        Task task = new Task(title, description, dueDate);
 
         return taskRepository.save(task);
     }
@@ -45,6 +46,14 @@ public class TaskService {
         Task task = searchTaskById(id);
 
         task.updatePriority(priority);
+
+        return taskRepository.save(task);
+    }
+
+    public Task updateDueDate(Long id, LocalDate dueDate){
+        Task task = searchTaskById(id);
+
+        task.updateDueDate(dueDate);
 
         return taskRepository.save(task);
     }

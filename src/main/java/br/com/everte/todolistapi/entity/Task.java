@@ -11,6 +11,8 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Table;
 
+import java.time.LocalDate;
+
 
 @Entity
 @Table(name = "tasks")
@@ -32,14 +34,17 @@ public class Task {
     @Column(nullable = false)
     private TaskPriority priority;
 
+    private LocalDate dueDate;
+
     protected Task(){
     }
 
-    public Task(String title, String description){
+    public Task(String title, String description, LocalDate dueDate){
         this.title = title;
         this.description = description;
         this.status = TaskStatus.PENDING;
         this.priority = TaskPriority.MEDIUM;
+        this.dueDate = dueDate;
     }
 
     public long getId() {
@@ -60,10 +65,14 @@ public class Task {
 
     public TaskPriority getPriority(){ return priority; }
 
+    public LocalDate getDueDate() { return dueDate; }
+
     public void updateStatus(TaskStatus status){
         this.status = status;
     }
 
     public void updatePriority(TaskPriority priority){ this.priority = priority; }
+
+    public void updateDueDate(LocalDate dueDate){ this.dueDate = dueDate; }
 }
 

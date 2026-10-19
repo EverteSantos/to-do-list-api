@@ -1,6 +1,7 @@
 package br.com.everte.todolistapi.controller;
 
 import br.com.everte.todolistapi.dto.CreateTaskRequest;
+import br.com.everte.todolistapi.dto.UpdateDueDateRequest;
 import br.com.everte.todolistapi.dto.UpdatePriorityRequest;
 import br.com.everte.todolistapi.dto.UpdateStatusRequest;
 import br.com.everte.todolistapi.entity.Task;
@@ -50,7 +51,8 @@ public class TaskController {
         public ResponseEntity<Task> createTask(@Valid @RequestBody CreateTaskRequest request){
             Task task = taskService.createTask(
                     request.getTitle(),
-                    request.getDescription()
+                    request.getDescription(),
+                    request.getDueDate()
             );
 
             return ResponseEntity.status(HttpStatus.CREATED).body(task);
@@ -143,6 +145,24 @@ public class TaskController {
                 Task task = taskService.updatePriority(
                         id,
                         request.getPriority()
+                );
+
+                return ResponseEntity.ok(task);
+        }
+
+        @Operation(summary = "Atualizar prazo de finalização.")
+        @PatchMapping("/{id}/due-date")
+        public ResponseEntity<Task> updateDuedate(
+                @Parameter(
+                        description = "ID da tarefa",
+                        example = "1"
+                )
+                @PathVariable long id,
+                @Valid @RequestBody UpdateDueDateRequest request) {
+
+                Task task = taskService.updateDueDate(
+                        id,
+                        request.getDueDate()
                 );
 
                 return ResponseEntity.ok(task);

@@ -7,9 +7,9 @@ import br.com.everte.todolistapi.exception.TaskNotFoundException;
 import br.com.everte.todolistapi.repository.TaskRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mock;
 import org.mockito.Mockito;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
@@ -31,7 +31,8 @@ class TaskServiceTest {
 
         Task savedTask = new Task(
                 "Estudar Java",
-                "Revisar POO"
+                "Revisar POO",
+                LocalDate.of(2026,10,20)
         );
 
         Mockito.when(
@@ -40,19 +41,23 @@ class TaskServiceTest {
 
         Task result = taskService.createTask(
                 "Estudar Java",
-                "Revisar POO"
+                "Revisar POO",
+                LocalDate.of(2026,10,20)
         );
 
         assertEquals("Estudar Java", result.getTitle());
         assertEquals("Revisar POO", result.getDescription());
         assertEquals(TaskStatus.PENDING, result.getStatus());
         assertEquals(TaskPriority.MEDIUM, result.getPriority());
+        assertEquals(LocalDate.of(2026, 10, 20),
+                result.getDueDate());
     }
 
     @Test
     void shouldListTasks(){
-        Task task1 = new Task("Estudar Java", "POO");
-        Task task2 = new Task("Estudar Spring", "API REST");
+        Task task1 = new Task("Estudar Java", "POO", LocalDate.of(2026,10,20)
+        );
+        Task task2 = new Task("Estudar Spring", "API REST", LocalDate.of(2026,10,20));
 
         Mockito.when(taskRepository.findAll())
                 .thenReturn(List.of(task1,task2));
@@ -70,7 +75,8 @@ class TaskServiceTest {
 
         Task task = new Task(
                 "Estudar Java",
-                "Revisar Testes"
+                "Revisar Testes",
+                LocalDate.of(2026,10,20)
         );
 
         Mockito.when(taskRepository.findById(1L))
@@ -97,7 +103,8 @@ class TaskServiceTest {
     void shouldUpdateTaskStatus(){
         Task task = new Task(
                 "Estudar Java",
-                "Revisar POO"
+                "Revisar POO",
+                LocalDate.of(2026,10,20)
         );
 
         Mockito.when(taskRepository.findById(1L))
@@ -118,7 +125,8 @@ class TaskServiceTest {
     void shouldUpdateTaskPriority(){
         Task task = new Task(
                 "Estudar Java",
-                "Revisar POO"
+                "Revisar POO",
+                LocalDate.of(2026,10,20)
         );
 
         Mockito.when(taskRepository.findById(1L))
@@ -183,6 +191,44 @@ class TaskServiceTest {
                         999L,
                         TaskPriority.HIGH
                 )
+        );
+    }
+
+    @Test
+    void shouldThrowExceptionWhenUpdatingDueDateNonExistingTask(){
+        Mockito.when(taskRepository.findById(999L))
+                .thenReturn(Optional.empty());
+
+        assertThrows(
+                TaskNotFoundException.class,
+                () -> taskService.updateDueDate(999L,
+                        LocalDate.of(2026, 10, 30))
+        );
+    }
+
+    @Test
+    void shouldUpdateTaskDueDate(){
+
+        Task task = new Task(
+                "Estudar Java",
+                "Revisar POO",
+                LocalDate.of(2026, 10, 20)
+        );
+
+        Mockito.when(taskRepository.findById(1L))
+                .thenReturn(Optional.of(task));
+
+        Mockito.when(taskRepository.save(Mockito.any(Task.class)))
+                .thenReturn(task);
+
+        Task result = taskService.updateDueDate(
+                1L,
+                LocalDate.of(2026, 10, 30)
+        );
+
+        assertEquals(
+                LocalDate.of(2026, 10, 30),
+                result.getDueDate()
         );
     }
 
