@@ -26,6 +26,10 @@ class TaskServiceTest {
         taskService = new TaskService(taskRepository);
     }
 
+    protected TaskServiceTest(){
+
+    }
+
     @Test
     void shouldCreateTask(){
 
